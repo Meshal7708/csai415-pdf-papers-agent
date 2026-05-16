@@ -1,0 +1,761 @@
+{
+  "n_trials": 50,
+  "seed": 42,
+  "search_space": {
+    "k": [
+      3,
+      30
+    ],
+    "metric": [
+      "cosine",
+      "dot",
+      "euclidean"
+    ],
+    "svd_dim": [
+      0,
+      64,
+      128,
+      256
+    ],
+    "l2_normalize": [
+      true,
+      false
+    ],
+    "hybrid_lambda": [
+      0.0,
+      1.0
+    ]
+  },
+  "objective": "NDCG@5 - 0.05 * max(0, p95_ms - 50)",
+  "best_params": {
+    "k": 20,
+    "metric": "cosine",
+    "svd_dim": 128,
+    "l2_normalize": false,
+    "hybrid_lambda": 0.2415062018075319
+  },
+  "best_score": 0.8905386540536039,
+  "metrics": {
+    "train": {
+      "recall@5": 0.6262983393418177,
+      "ndcg@5": 0.8905386540536039,
+      "p95_ms": 0.44572900000616755
+    },
+    "val": {
+      "recall@5": 0.5997632575757577,
+      "ndcg@5": 0.9033612720499391,
+      "p95_latency_ms": 0.5064728499633019,
+      "mean_latency_ms": 0.4091522812466053,
+      "n_queries": 32
+    },
+    "full": {
+      "recall@5": 0.6154121519506135,
+      "ndcg@5": 0.8957992152828697,
+      "p95_latency_ms": 0.5148187000429512,
+      "mean_latency_ms": 0.40687069230070616,
+      "n_queries": 78
+    }
+  },
+  "trials": [
+    {
+      "number": 0,
+      "value": 0.8797942152064815,
+      "params": {
+        "k": 13,
+        "metric": "cosine",
+        "svd_dim": 256,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.020584494295802447
+      },
+      "recall@5": 0.6261120039380909,
+      "ndcg@5": 0.8797942152064815,
+      "p95_ms": 3.487166750005599
+    },
+    {
+      "number": 1,
+      "value": 0.8852883117553197,
+      "params": {
+        "k": 30,
+        "metric": "cosine",
+        "svd_dim": 128,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.13949386065204183
+      },
+      "recall@5": 0.624559208907035,
+      "ndcg@5": 0.8852883117553197,
+      "p95_ms": 3.4682604999431987
+    },
+    {
+      "number": 2,
+      "value": 0.876941930912735,
+      "params": {
+        "k": 11,
+        "metric": "euclidean",
+        "svd_dim": 128,
+        "l2_normalize": true,
+        "hybrid_lambda": 0.06505159298527952
+      },
+      "recall@5": 0.624559208907035,
+      "ndcg@5": 0.876941930912735,
+      "p95_ms": 3.3802287500179773
+    },
+    {
+      "number": 3,
+      "value": 0.8726171592625183,
+      "params": {
+        "k": 29,
+        "metric": "cosine",
+        "svd_dim": 64,
+        "l2_normalize": true,
+        "hybrid_lambda": 0.9093204020787821
+      },
+      "recall@5": 0.6161120039380908,
+      "ndcg@5": 0.8726171592625183,
+      "p95_ms": 3.399291999983234
+    },
+    {
+      "number": 4,
+      "value": 0.879990207203249,
+      "params": {
+        "k": 10,
+        "metric": "cosine",
+        "svd_dim": 128,
+        "l2_normalize": true,
+        "hybrid_lambda": 0.5978999788110851
+      },
+      "recall@5": 0.6169815691554822,
+      "ndcg@5": 0.879990207203249,
+      "p95_ms": 3.3643852500517824
+    },
+    {
+      "number": 5,
+      "value": 0.8776490479702438,
+      "params": {
+        "k": 28,
+        "metric": "dot",
+        "svd_dim": 256,
+        "l2_normalize": true,
+        "hybrid_lambda": 0.5426960831582485
+      },
+      "recall@5": 0.6161120039380908,
+      "ndcg@5": 0.8776490479702438,
+      "p95_ms": 3.3951667499536597
+    },
+    {
+      "number": 6,
+      "value": 0.8771379229095025,
+      "params": {
+        "k": 6,
+        "metric": "euclidean",
+        "svd_dim": 256,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.7712703466859457
+      },
+      "recall@5": 0.6161120039380908,
+      "ndcg@5": 0.8771379229095025,
+      "p95_ms": 0.4119377499876009
+    },
+    {
+      "number": 7,
+      "value": 0.8851611891362099,
+      "params": {
+        "k": 5,
+        "metric": "euclidean",
+        "svd_dim": 0,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.6375574713552131
+      },
+      "recall@5": 0.6161120039380908,
+      "ndcg@5": 0.8851611891362099,
+      "p95_ms": 0.30667650003124436
+    },
+    {
+      "number": 8,
+      "value": 0.8785057492406535,
+      "params": {
+        "k": 27,
+        "metric": "euclidean",
+        "svd_dim": 128,
+        "l2_normalize": true,
+        "hybrid_lambda": 0.02541912674409519
+      },
+      "recall@5": 0.6261120039380909,
+      "ndcg@5": 0.8785057492406535,
+      "p95_ms": 0.45781225000496306
+    },
+    {
+      "number": 9,
+      "value": 0.8725696003115386,
+      "params": {
+        "k": 6,
+        "metric": "dot",
+        "svd_dim": 64,
+        "l2_normalize": true,
+        "hybrid_lambda": 0.07697990982879299
+      },
+      "recall@5": 0.6182893676371938,
+      "ndcg@5": 0.8725696003115386,
+      "p95_ms": 0.3752087500004109
+    },
+    {
+      "number": 10,
+      "value": 0.8779721625861213,
+      "params": {
+        "k": 21,
+        "metric": "cosine",
+        "svd_dim": 0,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.29376490143291956
+      },
+      "recall@5": 0.6161120039380908,
+      "ndcg@5": 0.8779721625861213,
+      "p95_ms": 0.6137502499825587
+    },
+    {
+      "number": 11,
+      "value": 0.8779721625861213,
+      "params": {
+        "k": 19,
+        "metric": "euclidean",
+        "svd_dim": 0,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.3538938798728583
+      },
+      "recall@5": 0.6161120039380908,
+      "ndcg@5": 0.8779721625861213,
+      "p95_ms": 0.3563752499928796
+    },
+    {
+      "number": 12,
+      "value": 0.8779721625861213,
+      "params": {
+        "k": 3,
+        "metric": "cosine",
+        "svd_dim": 0,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.3196613214852393
+      },
+      "recall@5": 0.6161120039380908,
+      "ndcg@5": 0.8779721625861213,
+      "p95_ms": 0.5595834999780891
+    },
+    {
+      "number": 13,
+      "value": 0.8851611891362099,
+      "params": {
+        "k": 23,
+        "metric": "euclidean",
+        "svd_dim": 0,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.7125622238244784
+      },
+      "recall@5": 0.6161120039380908,
+      "ndcg@5": 0.8851611891362099,
+      "p95_ms": 0.3141560000017307
+    },
+    {
+      "number": 14,
+      "value": 0.887175244699116,
+      "params": {
+        "k": 16,
+        "metric": "dot",
+        "svd_dim": 128,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.2201936035613497
+      },
+      "recall@5": 0.6254287741244263,
+      "ndcg@5": 0.887175244699116,
+      "p95_ms": 0.3761977500289504
+    },
+    {
+      "number": 15,
+      "value": 0.8849651971394422,
+      "params": {
+        "k": 16,
+        "metric": "dot",
+        "svd_dim": 128,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.19405750293047194
+      },
+      "recall@5": 0.6223231840623145,
+      "ndcg@5": 0.8849651971394422,
+      "p95_ms": 0.31199975003914915
+    },
+    {
+      "number": 16,
+      "value": 0.8805013322639905,
+      "params": {
+        "k": 25,
+        "metric": "dot",
+        "svd_dim": 128,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.40095596968204394
+      },
+      "recall@5": 0.6169815691554822,
+      "ndcg@5": 0.8805013322639905,
+      "p95_ms": 0.30390599997076606
+    },
+    {
+      "number": 17,
+      "value": 0.8849651971394422,
+      "params": {
+        "k": 18,
+        "metric": "dot",
+        "svd_dim": 128,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.19592898855184532
+      },
+      "recall@5": 0.6223231840623145,
+      "ndcg@5": 0.8849651971394422,
+      "p95_ms": 0.3253957499396165
+    },
+    {
+      "number": 18,
+      "value": 0.8805013322639905,
+      "params": {
+        "k": 15,
+        "metric": "dot",
+        "svd_dim": 128,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.4523263128776084
+      },
+      "recall@5": 0.6169815691554822,
+      "ndcg@5": 0.8805013322639905,
+      "p95_ms": 0.3498229999649993
+    },
+    {
+      "number": 19,
+      "value": 0.8849651971394422,
+      "params": {
+        "k": 21,
+        "metric": "cosine",
+        "svd_dim": 128,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.18863245038088747
+      },
+      "recall@5": 0.6223231840623145,
+      "ndcg@5": 0.8849651971394422,
+      "p95_ms": 0.4832912499352915
+    },
+    {
+      "number": 20,
+      "value": 0.8688830763411732,
+      "params": {
+        "k": 30,
+        "metric": "dot",
+        "svd_dim": 64,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.23329613622018147
+      },
+      "recall@5": 0.6189656961396092,
+      "ndcg@5": 0.8688830763411732,
+      "p95_ms": 0.28842725006938963
+    },
+    {
+      "number": 21,
+      "value": 0.8851611891362099,
+      "params": {
+        "k": 8,
+        "metric": "euclidean",
+        "svd_dim": 0,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.6685522170768818
+      },
+      "recall@5": 0.6161120039380908,
+      "ndcg@5": 0.8851611891362099,
+      "p95_ms": 0.36254125001278226
+    },
+    {
+      "number": 22,
+      "value": 0.8744167502890875,
+      "params": {
+        "k": 3,
+        "metric": "euclidean",
+        "svd_dim": 0,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.8706280011519396
+      },
+      "recall@5": 0.6161120039380908,
+      "ndcg@5": 0.8744167502890875,
+      "p95_ms": 0.29274999994299833
+    },
+    {
+      "number": 23,
+      "value": 0.8852883117553197,
+      "params": {
+        "k": 14,
+        "metric": "cosine",
+        "svd_dim": 128,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.12179938132860149
+      },
+      "recall@5": 0.624559208907035,
+      "ndcg@5": 0.8852883117553197,
+      "p95_ms": 0.519989499963458
+    },
+    {
+      "number": 24,
+      "value": 0.8852883117553197,
+      "params": {
+        "k": 13,
+        "metric": "cosine",
+        "svd_dim": 128,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.14772939844313154
+      },
+      "recall@5": 0.624559208907035,
+      "ndcg@5": 0.8852883117553197,
+      "p95_ms": 0.5421352500434296
+    },
+    {
+      "number": 25,
+      "value": 0.8852883117553197,
+      "params": {
+        "k": 14,
+        "metric": "cosine",
+        "svd_dim": 128,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.12702270787270697
+      },
+      "recall@5": 0.624559208907035,
+      "ndcg@5": 0.8852883117553197,
+      "p95_ms": 0.45896899993636
+    },
+    {
+      "number": 26,
+      "value": 0.883999845789492,
+      "params": {
+        "k": 18,
+        "metric": "cosine",
+        "svd_dim": 128,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.26579970534991704
+      },
+      "recall@5": 0.6200871592175939,
+      "ndcg@5": 0.883999845789492,
+      "p95_ms": 0.4255317500110323
+    },
+    {
+      "number": 27,
+      "value": 0.8772650455286124,
+      "params": {
+        "k": 11,
+        "metric": "cosine",
+        "svd_dim": 128,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.10021551974552431
+      },
+      "recall@5": 0.624559208907035,
+      "ndcg@5": 0.8772650455286124,
+      "p95_ms": 0.4270419999556907
+    },
+    {
+      "number": 28,
+      "value": 0.8805013322639905,
+      "params": {
+        "k": 25,
+        "metric": "cosine",
+        "svd_dim": 128,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.40416875423616255
+      },
+      "recall@5": 0.6169815691554822,
+      "ndcg@5": 0.8805013322639905,
+      "p95_ms": 0.4293225000253642
+    },
+    {
+      "number": 29,
+      "value": 0.8785057492406535,
+      "params": {
+        "k": 17,
+        "metric": "cosine",
+        "svd_dim": 256,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.00026284836893461505
+      },
+      "recall@5": 0.6261120039380909,
+      "ndcg@5": 0.8785057492406535,
+      "p95_ms": 0.45062525003913834
+    },
+    {
+      "number": 30,
+      "value": 0.8805013322639905,
+      "params": {
+        "k": 22,
+        "metric": "dot",
+        "svd_dim": 128,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.5246191676572978
+      },
+      "recall@5": 0.6169815691554822,
+      "ndcg@5": 0.8805013322639905,
+      "p95_ms": 0.28307249999670603
+    },
+    {
+      "number": 31,
+      "value": 0.8852883117553197,
+      "params": {
+        "k": 13,
+        "metric": "cosine",
+        "svd_dim": 128,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.1438573736045859
+      },
+      "recall@5": 0.624559208907035,
+      "ndcg@5": 0.8852883117553197,
+      "p95_ms": 0.43564575000232253
+    },
+    {
+      "number": 32,
+      "value": 0.8852883117553197,
+      "params": {
+        "k": 12,
+        "metric": "cosine",
+        "svd_dim": 128,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.12675355754871678
+      },
+      "recall@5": 0.624559208907035,
+      "ndcg@5": 0.8852883117553197,
+      "p95_ms": 0.40819800005920115
+    },
+    {
+      "number": 33,
+      "value": 0.8788288638565313,
+      "params": {
+        "k": 10,
+        "metric": "cosine",
+        "svd_dim": 128,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.04569608423986518
+      },
+      "recall@5": 0.6261120039380909,
+      "ndcg@5": 0.8788288638565313,
+      "p95_ms": 0.432302000007212
+    },
+    {
+      "number": 34,
+      "value": 0.8769063425678805,
+      "params": {
+        "k": 13,
+        "metric": "cosine",
+        "svd_dim": 64,
+        "l2_normalize": true,
+        "hybrid_lambda": 0.2308791772396417
+      },
+      "recall@5": 0.6189656961396092,
+      "ndcg@5": 0.8769063425678805,
+      "p95_ms": 0.33886475000599603
+    },
+    {
+      "number": 35,
+      "value": 0.8852883117553197,
+      "params": {
+        "k": 15,
+        "metric": "cosine",
+        "svd_dim": 128,
+        "l2_normalize": true,
+        "hybrid_lambda": 0.14396050000370497
+      },
+      "recall@5": 0.624559208907035,
+      "ndcg@5": 0.8852883117553197,
+      "p95_ms": 0.35102050006230456
+    },
+    {
+      "number": 36,
+      "value": 0.8849651971394424,
+      "params": {
+        "k": 19,
+        "metric": "cosine",
+        "svd_dim": 256,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.07919690664021897
+      },
+      "recall@5": 0.624559208907035,
+      "ndcg@5": 0.8849651971394424,
+      "p95_ms": 0.45124974991495037
+    },
+    {
+      "number": 37,
+      "value": 0.8808244468798678,
+      "params": {
+        "k": 9,
+        "metric": "cosine",
+        "svd_dim": 128,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.3468185453794407
+      },
+      "recall@5": 0.6169815691554822,
+      "ndcg@5": 0.8808244468798678,
+      "p95_ms": 0.4220104999603791
+    },
+    {
+      "number": 38,
+      "value": 0.8836767311736146,
+      "params": {
+        "k": 15,
+        "metric": "dot",
+        "svd_dim": 128,
+        "l2_normalize": true,
+        "hybrid_lambda": 0.26824205923406275
+      },
+      "recall@5": 0.6200871592175939,
+      "ndcg@5": 0.8836767311736146,
+      "p95_ms": 0.4087190000063856
+    },
+    {
+      "number": 39,
+      "value": 0.8574188333406888,
+      "params": {
+        "k": 8,
+        "metric": "cosine",
+        "svd_dim": 256,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.9909776637868204
+      },
+      "recall@5": 0.6152424387206995,
+      "ndcg@5": 0.8574188333406888,
+      "p95_ms": 0.4657400000667167
+    },
+    {
+      "number": 40,
+      "value": 0.8719233710797836,
+      "params": {
+        "k": 12,
+        "metric": "dot",
+        "svd_dim": 64,
+        "l2_normalize": true,
+        "hybrid_lambda": 0.04859262327823338
+      },
+      "recall@5": 0.6182893676371938,
+      "ndcg@5": 0.8719233710797836,
+      "p95_ms": 0.3356252499600032
+    },
+    {
+      "number": 41,
+      "value": 0.8884637106649439,
+      "params": {
+        "k": 14,
+        "metric": "cosine",
+        "svd_dim": 128,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.15395683880648844
+      },
+      "recall@5": 0.6254287741244263,
+      "ndcg@5": 0.8884637106649439,
+      "p95_ms": 0.436999999976706
+    },
+    {
+      "number": 42,
+      "value": 0.8884637106649439,
+      "params": {
+        "k": 17,
+        "metric": "cosine",
+        "svd_dim": 128,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.17682963395751833
+      },
+      "recall@5": 0.6254287741244263,
+      "ndcg@5": 0.8884637106649439,
+      "p95_ms": 0.4256355000222811
+    },
+    {
+      "number": 43,
+      "value": 0.884454072078701,
+      "params": {
+        "k": 17,
+        "metric": "cosine",
+        "svd_dim": 128,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.1966881128447509
+      },
+      "recall@5": 0.6223231840623145,
+      "ndcg@5": 0.884454072078701,
+      "p95_ms": 0.4210524999734844
+    },
+    {
+      "number": 44,
+      "value": 0.8905386540536039,
+      "params": {
+        "k": 20,
+        "metric": "cosine",
+        "svd_dim": 128,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.2415062018075319
+      },
+      "recall@5": 0.6262983393418177,
+      "ndcg@5": 0.8905386540536039,
+      "p95_ms": 0.44572900000616755
+    },
+    {
+      "number": 45,
+      "value": 0.8808244468798678,
+      "params": {
+        "k": 26,
+        "metric": "cosine",
+        "svd_dim": 128,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.31095137962348984
+      },
+      "recall@5": 0.6169815691554822,
+      "ndcg@5": 0.8808244468798678,
+      "p95_ms": 0.4154375000098298
+    },
+    {
+      "number": 46,
+      "value": 0.8900275289928624,
+      "params": {
+        "k": 20,
+        "metric": "cosine",
+        "svd_dim": 128,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.2362424182741623
+      },
+      "recall@5": 0.6262983393418177,
+      "ndcg@5": 0.8900275289928624,
+      "p95_ms": 0.43334400007211116
+    },
+    {
+      "number": 47,
+      "value": 0.8805013322639905,
+      "params": {
+        "k": 20,
+        "metric": "cosine",
+        "svd_dim": 128,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.4031236858415217
+      },
+      "recall@5": 0.6169815691554822,
+      "ndcg@5": 0.8805013322639905,
+      "p95_ms": 0.4260622500567024
+    },
+    {
+      "number": 48,
+      "value": 0.8805013322639905,
+      "params": {
+        "k": 23,
+        "metric": "cosine",
+        "svd_dim": 128,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.4662143369293798
+      },
+      "recall@5": 0.6169815691554822,
+      "ndcg@5": 0.8805013322639905,
+      "p95_ms": 0.41650024994055457
+    },
+    {
+      "number": 49,
+      "value": 0.8905386540536039,
+      "params": {
+        "k": 19,
+        "metric": "dot",
+        "svd_dim": 128,
+        "l2_normalize": false,
+        "hybrid_lambda": 0.24784751178911227
+      },
+      "recall@5": 0.6262983393418177,
+      "ndcg@5": 0.8905386540536039,
+      "p95_ms": 0.290718500082221
+    }
+  ]
+}
