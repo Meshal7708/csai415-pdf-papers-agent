@@ -1,0 +1,64 @@
+{
+  "n_steps": 1200,
+  "drift_at": 600,
+  "epsilon": 0.1,
+  "adwin_delta": 0.002,
+  "arms": [
+    0.0,
+    0.1,
+    0.2,
+    0.3,
+    0.4,
+    0.5,
+    0.6,
+    0.7,
+    0.8,
+    0.9,
+    1.0
+  ],
+  "static_lambda": 0.3944497642389666,
+  "learner": "river.compose.Pipeline(OneHotEncoder + LogisticRegression) + \u03b5-greedy",
+  "overall": {
+    "static_helpful_rate": 0.4008333333333333,
+    "adaptive_helpful_rate": 0.7225,
+    "relative_lift_pct": 80.24948024948027
+  },
+  "pre_drift": {
+    "static": 0.675,
+    "adaptive": 0.8133333333333334
+  },
+  "post_drift": {
+    "static": 0.12666666666666668,
+    "adaptive": 0.6316666666666667,
+    "relative_lift_pct": 398.6842105263157
+  },
+  "adwin_alarms": [
+    639
+  ],
+  "n_classifier_resets": 1,
+  "lambda_distribution_pre": {
+    "0.2": 0.918,
+    "0.7": 0.013,
+    "0.1": 0.012,
+    "0.8": 0.012,
+    "1.0": 0.012,
+    "0.5": 0.01,
+    "0.0": 0.008,
+    "0.4": 0.007,
+    "0.3": 0.005,
+    "0.9": 0.003
+  },
+  "lambda_distribution_post": {
+    "0.7": 0.835,
+    "0.2": 0.068,
+    "0.8": 0.018,
+    "1.0": 0.013,
+    "0.4": 0.013,
+    "0.1": 0.012,
+    "0.6": 0.012,
+    "0.5": 0.012,
+    "0.0": 0.007,
+    "0.3": 0.007,
+    "0.9": 0.003
+  }
+}
