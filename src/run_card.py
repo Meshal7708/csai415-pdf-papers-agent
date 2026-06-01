@@ -57,7 +57,7 @@ def main():
             "Essam":   "Report, notebook, run card: build_notebook.py, build_report.js, src/run_card.py, README.md",
         },
         "dataset": {
-            "name": "synthetic-arxiv-150",
+            "name": "arxiv-api-150",
             "n_papers": 150,
             "topics": 6,
             "corpus_hash": corpus_hash,                                    # fingerprint of the actual corpus
