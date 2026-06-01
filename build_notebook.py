@@ -37,7 +37,7 @@ CELLS = [
        "**Team:** Khalifa (AutoML) · Meshal (Online learning) · Mahmoud (Retriever) · Ahmed (Corpus & gold) · Essam (Report & integration)",
        "",
        "**This notebook bundles the full D1 pipeline:**",
-       "1. Build a 150-paper synthetic arXiv-style corpus (offline-friendly stand-in for the eventual PDF ingestion in D2).",
+       "1. Fetch a 150-paper real corpus from the **arXiv API** across 6 topics (full PDF ingestion lands in D2).",
        "2. Build a hybrid retriever: **BM25 + (TF-IDF [+ TruncatedSVD])**, tunable.",
        "3. Build a 78-query gold set with three query types (broad, targeted, title).",
        "4. Compute **baseline** Recall@5 / NDCG@5 / p95 latency.",
@@ -68,12 +68,14 @@ for mod in ['numpy', 'pandas', 'sklearn', 'rank_bm25', 'optuna', 'river']:
 """),
 
     # ---- section 1: corpus ----
-    md("## 1 — Build the corpus (150 papers across 6 topics)",
+    md("## 1 — Build the corpus (150 real arXiv papers across 6 topics)",
        "Six topic clusters: `transformers`, `rag`, `online_learning`, `vision`, `rl_agents`, `automl`. "
-       "Each paper has a title, abstract, authors, venue, year, topic — schema mirrors the brief's required metadata."),
+       "Papers are fetched live from the **arXiv API** (25 per topic); each has a title, abstract, authors, "
+       "venue, year, topic — schema mirrors the brief's required metadata. The fetched `corpus.parquet` is "
+       "committed so the snapshot is reproducible for the whole team."),
     code("""\
 from build_corpus import build_corpus
-corpus = build_corpus(target_size=150)           # procedural corpus generation
+corpus = build_corpus(target_size=150)           # fetch real papers from the arXiv API
 out = DATA / 'corpus.parquet'
 corpus.to_parquet(out, index=False)              # persist for downstream cells
 (DATA / 'corpus_hash.txt').write_text(corpus.attrs['corpus_hash'])
@@ -85,7 +87,7 @@ corpus.head()                                    # quick visual check
     md("## 2 — Hybrid BM25 + dense retriever",
        "*Lexical:* BM25Okapi (rank_bm25). &nbsp;*Dense:* TF-IDF → optional TruncatedSVD → optional L2-norm.",
        "Final score = `λ * minmax(BM25) + (1-λ) * minmax(dense)`. The dense module will be swapped to "
-       "`sentence-transformers/bge-small-en` in D2 once full ingestion is available — the `HybridRetriever` interface stays the same."),
+       "`sentence-transformers/bge-small-en` in D2 — the `HybridRetriever` interface stays the same."),
     code("""\
 from retriever import HybridConfig, HybridRetriever
 cfg = HybridConfig(k=10, metric='cosine', svd_dim=128, l2_normalize=True, hybrid_lambda=0.5)
@@ -148,7 +150,8 @@ display(Image.open(RESULTS / 'optuna_history.png'))   # show the running-best cu
        "**Drift detector:** `river.drift.ADWIN` (δ = 0.002) on the click stream; on alarm we reset the classifier — "
        "exact same pattern as `Week-04-02-Drift_Detection_v3.ipynb`. ",
        "**User-preference model:** P(helpful | λ, regime) = clip(1 − 2|λ − λ_ideal(regime)|, 0, 1) with 5% label noise. "
-       "Pre-drift λ_ideal = 0.25 (matches Optuna). Post-drift (step 600) λ_ideal jumps to 0.85 — a sharp shift in user preference."),
+       "Pre-drift λ_ideal = 0.25 (matches Optuna). Post-drift (step 600) λ_ideal jumps to 0.85 — a sharp shift in user preference. "
+       "Note: real click logs aren't available for D1, so this feedback stream is simulated over the real retrieved corpus; D2 replaces it with logged interactions."),
     code("""\
 import importlib, online
 importlib.reload(online); online.run()           # runs the 1200-step stream; writes online_log + online_stats
@@ -178,9 +181,13 @@ print((ROOT / 'run_card.yaml').read_text()[:1400])
     # ---- section 9: decisions & pitfalls ----
     md("## 9 — Decisions and pitfalls",
        "**Decisions.**",
-       "- *Dense vector source.* The brief suggests `bge-small-en`; the sandbox is offline so D1 uses TF-IDF + TruncatedSVD. "
-       "This makes the `svd_dim` Optuna axis directly meaningful (LSA components) and keeps the notebook reproducible. "
-       "We hold the `HybridRetriever` interface stable so D2 can swap in the BGE encoder by re-fitting only the dense matrix.",
+       "- *Real corpus source.* Papers are pulled from the live arXiv API (25 per topic, deduped) and the resulting "
+       "`corpus.parquet` is committed, so the data is real yet reproducible. This replaces the earlier synthetic "
+       "stand-in and gives the retriever genuine abstracts to work over.",
+       "- *Dense vector source.* The brief suggests `bge-small-en`; D1 uses TF-IDF + TruncatedSVD as the dense side and "
+       "defers the neural encoder to D2. This keeps the `svd_dim` Optuna axis directly meaningful (LSA components) and "
+       "the notebook fully reproducible. We hold the `HybridRetriever` interface stable so D2 can swap in the BGE "
+       "encoder by re-fitting only the dense matrix.",
        "- *Incremental classifier, not bandit.* The brief's framing — *clicked helpful y/n* — is binary, so the online "
        "learner is a `river.linear_model.LogisticRegression` inside a `compose.Pipeline` with `preprocessing.OneHotEncoder`. "
        "This stays strictly inside the Week-03 toolkit (no `river.bandit` module). ε-greedy gives the classifier early data on every arm.",
@@ -205,7 +212,7 @@ def main():
         "cells": CELLS,
         "metadata": {
             "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"},
-            "language_info": {"name": "python", "version": "3.10"},
+            "language_info": {"name": "python", "version": "3.12"},
         },
         "nbformat": 4,
         "nbformat_minor": 5,
