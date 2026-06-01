@@ -65,13 +65,21 @@ BROAD_QUERIES = {
 # Method/dataset queries — narrower; gold = topic-papers that mention the term.
 # These are picked from the methods/datasets that the corpus generator actually
 # emits, so each term is guaranteed to appear in at least one paper.
+# TARGETED_TERMS = {
+#     "transformers": ["FlashAttention", "grouped-query attention", "PG-19"],
+#     "rag": ["HNSW index", "Cypher subgraph expansion", "HotpotQA"],
+#     "online_learning": ["ADWIN", "Hoeffding", "NYC Taxi"],
+#     "vision": ["DINO", "MAE", "COCO"],
+#     "rl_agents": ["WebShop", "self-play", "GSM8K"],
+#     "automl": ["BOHB", "median pruner", "FLAML"],
+# }
 TARGETED_TERMS = {
-    "transformers": ["FlashAttention", "grouped-query attention", "PG-19"],
-    "rag": ["HNSW index", "Cypher subgraph expansion", "HotpotQA"],
-    "online_learning": ["ADWIN", "Hoeffding", "NYC Taxi"],
-    "vision": ["DINO", "MAE", "COCO"],
-    "rl_agents": ["WebShop", "self-play", "GSM8K"],
-    "automl": ["BOHB", "median pruner", "FLAML"],
+"transformers":    ["attention", "transformer", "token"],
+    "rag":             ["retrieval", "reranking", "passage"],
+    "online_learning": ["drift", "stream", "incremental"],
+    "vision":          ["segmentation", "detection", "image"],
+    "rl_agents":       ["policy", "reward", "agent"],
+    "automl":          ["hyperparameter", "search", "optimization"],
 }
 
 
