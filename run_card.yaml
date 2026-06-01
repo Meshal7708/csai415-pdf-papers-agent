@@ -1,0 +1,125 @@
+run_id: D1-20260601-191913
+deliverable: D1 — Streaming Learner & AutoML Note
+created_utc: '2026-06-01T19:19:13+00:00'
+seed: 42
+team:
+  Khalifa: 'AutoML track (Optuna): src/automl.py, src/baselines.py'
+  Meshal: 'Online learning & drift (River): src/online.py, src/prequential_plot.py'
+  Mahmoud: 'Hybrid retriever: src/retriever.py'
+  Ahmed: 'Corpus & gold set + ranking metrics: src/build_corpus.py, src/gold.py'
+  Essam: 'Report, notebook, run card: build_notebook.py, build_report.js, src/run_card.py,
+    README.md'
+dataset:
+  name: arxiv-api-150
+  n_papers: 150
+  topics: 6
+  corpus_hash: 2efdfbfd9aa3245b
+  gold_queries: 78
+automl:
+  framework: Optuna
+  n_trials: 50
+  search_space:
+    k:
+    - 3
+    - 30
+    metric:
+    - cosine
+    - dot
+    - euclidean
+    svd_dim:
+    - 0
+    - 64
+    - 128
+    - 256
+    l2_normalize:
+    - true
+    - false
+    hybrid_lambda:
+    - 0.0
+    - 1.0
+  objective: NDCG@5 - 0.05 * max(0, p95_ms - 50)
+  winning_config:
+    k: 23
+    metric: dot
+    svd_dim: 0
+    l2_normalize: true
+    hybrid_lambda: 0.3944497642389666
+  metrics:
+    baseline_naive_hybrid:
+      recall@5: 0.579863417580809
+      ndcg@5: 0.894658209224117
+      p95_latency_ms: 0.6781186792068183
+      mean_latency_ms: 0.5955186744148915
+      n_queries: 78
+    best_on_train_split:
+      recall@5: 0.5950476817868122
+      ndcg@5: 0.8954096965135897
+      p95_ms: 0.38293746183626354
+    best_on_val_split:
+      recall@5: 0.5691967520703933
+      ndcg@5: 0.8977299164036329
+      p95_latency_ms: 0.3815589298028499
+      mean_latency_ms: 0.3092460974585265
+      n_queries: 32
+    best_on_full_gold:
+      recall@5: 0.5844421721595635
+      ndcg@5: 0.8963615815966844
+      p95_latency_ms: 0.4135420022066682
+      mean_latency_ms: 0.32887384683514637
+      n_queries: 78
+online_learning:
+  framework: River
+  task: adaptive hybrid weight from feedback (clicked-helpful y/n)
+  policy:
+    kind: river.compose.Pipeline(OneHotEncoder + LogisticRegression) + ε-greedy
+    epsilon: 0.1
+    arms_lambda:
+    - 0.0
+    - 0.1
+    - 0.2
+    - 0.3
+    - 0.4
+    - 0.5
+    - 0.6
+    - 0.7
+    - 0.8
+    - 0.9
+    - 1.0
+  drift_detector:
+    kind: ADWIN
+    delta: 0.002
+    alarms_at_steps:
+    - 639
+    n_classifier_resets: 1
+  stream:
+    n_steps: 1200
+    drift_at: 600
+    lambda_ideal_pre: 0.25
+    lambda_ideal_post: 0.85
+    noise_flip_rate: 0.05
+  results:
+    static_helpful_rate_overall: 0.4008333333333333
+    adaptive_helpful_rate_overall: 0.7225
+    relative_lift_overall_pct: 80.24948024948027
+    post_drift_static: 0.12666666666666668
+    post_drift_adaptive: 0.6316666666666667
+    post_drift_relative_lift_pct: 398.6842105263157
+artifacts:
+  notebook: D1.ipynb
+  report: D1_Report.docx
+  prequential_plot: results/prequential.png
+  optuna_history_plot: results/optuna_history.png
+  baselines_json: results/baselines.json
+  automl_study_json: results/automl_study.json
+  online_log_parquet: results/online_log.parquet
+environment:
+  numpy: 2.4.6
+  pandas: 3.0.3
+  scikit-learn: not-installed
+  rank_bm25: unknown
+  optuna: 4.9.0
+  river: 0.25.0
+  matplotlib: 3.10.9
+  pyarrow: 24.0.0
+  python: 3.12.9
+  platform: macOS-26.2-arm64-arm-64bit
