@@ -62,7 +62,8 @@ def make_objective(corpus: pd.DataFrame, gold_train: pd.DataFrame,
         key = (svd_dim, l2, metric)              # structural key
         if key not in cache:
             cfg = HybridConfig(k=10, metric=metric, svd_dim=svd_dim,
-                               l2_normalize=l2, hybrid_lambda=0.5)        # k & λ don't matter here
+                               l2_normalize=l2, hybrid_lambda=0.5,
+                               embedder="bge")        # D2: semantic dense side; k & λ don't matter here
             cache[key] = HybridRetriever(cfg).fit(corpus)                 # one fit per unique key
         return cache[key]
 
@@ -116,7 +117,8 @@ def main():
     p = best.params
     cfg = HybridConfig(k=p["k"], metric=p["metric"], svd_dim=p["svd_dim"],
                        l2_normalize=p["l2_normalize"],
-                       hybrid_lambda=p["hybrid_lambda"])
+                       hybrid_lambda=p["hybrid_lambda"],
+                       embedder="bge")           # D2: semantic dense side (bge-small-en)
     retriever = HybridRetriever(cfg).fit(corpus)
     m_val = evaluate(retriever, gold_val, k=5, top_k_search=max(cfg.k, 5))
     m_full = evaluate(retriever, gold, k=5, top_k_search=max(cfg.k, 5))
