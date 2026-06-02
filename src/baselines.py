@@ -1,7 +1,7 @@
 """Baseline retrieval metrics for D1.
 
-Three baselines, all using a fixed retriever config (k=10, cosine, svd_dim=128,
-l2_normalize=True). The only thing that varies is `hybrid_lambda`:
+Three baselines, all using a fixed retriever config (k=10, cosine,
+embedder=bge, l2_normalize=True). The only thing that varies is `hybrid_lambda`:
     BM25-only          → λ = 1.0
     Dense-only         → λ = 0.0
     Naive 0.5/0.5      → λ = 0.5
@@ -33,7 +33,7 @@ def main():
     # Using a single fitted retriever for all three lambdas keeps the comparison apples-to-apples.
     cfg = HybridConfig(k=10, metric="cosine", svd_dim=128,
                        l2_normalize=True, hybrid_lambda=0.5)
-    retriever = HybridRetriever(cfg).fit(corpus)
+
 
     out = {"config_fixed": cfg.__dict__, "baselines": {}}    # output dict mirrors the JSON schema
     for name, lam in [("bm25_only", 1.0),                    # λ=1.0 → BM25-only (lexical)
