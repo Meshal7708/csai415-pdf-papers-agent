@@ -145,7 +145,8 @@ def run() -> dict:
 
     # Fit the retriever once with the AutoML-winning structural axes.
     cfg = HybridConfig(k=p["k"], metric=p["metric"], svd_dim=p["svd_dim"],
-                       l2_normalize=p["l2_normalize"], hybrid_lambda=static_lambda)
+                       l2_normalize=p["l2_normalize"], hybrid_lambda=static_lambda,
+                       embedder="bge")           # D2: semantic dense side (bge-small-en) instead of TF-IDF/SVD
     retriever = HybridRetriever(cfg).fit(corpus)
 
     rng = random.Random(SEED)                                              # one RNG for exploration + reward noise
