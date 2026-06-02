@@ -1,11 +1,12 @@
 """Optuna AutoML search for the kNN retriever (D1 Track A).
 
-Search space (from the project brief):
+Search space (D2, bge semantic dense side):
     k             : int    [3, 30]
     metric        : enum   {cosine, dot, euclidean}
-    svd_dim       : enum   {0, 64, 128, 256}
     l2_normalize  : bool
     hybrid_lambda : float  [0.0, 1.0]
+(The old `svd_dim` axis only applied to the TF-IDF/SVD dense side and is
+ dropped now that retrieval uses bge-small-en embeddings.)
 
 Objective: maximize NDCG@5 with a soft latency penalty.
     score = NDCG@5 - 0.05 * max(0, p95_ms - 50)
@@ -51,17 +52,20 @@ def make_objective(corpus: pd.DataFrame, gold_train: pd.DataFrame,
                    gold_val: pd.DataFrame):
     """Build the Optuna objective function.
 
-    A retriever has to be REFIT whenever {svd_dim, l2, metric} changes — those
-    axes change the dense matrix. But k and hybrid_lambda are applied at
-    search time, so they don't need a refit. We cache fitted retrievers by
-    their structural axes to keep the 50-trial study fast.
-    """
-    cache: dict[tuple, HybridRetriever] = {}     # (svd_dim, l2, metric) → fitted retriever
+    A retriever has to be REFIT whenever {l2, metric} changes — those axes
+    change the dense matrix. But k and hybrid_lambda are applied at search
+    time, so they don't need a refit. We cache fitted retrievers by their
+    structural axes to keep the 50-trial study fast.
 
-    def _retriever_for(svd_dim: int, l2: bool, metric: str) -> HybridRetriever:
-        key = (svd_dim, l2, metric)              # structural key
+    Note: with the bge semantic encoder the old `svd_dim` axis is meaningless
+    (it only applied to the TF-IDF/SVD dense side), so it is dropped.
+    """
+    cache: dict[tuple, HybridRetriever] = {}     # (l2, metric) → fitted retriever
+
+    def _retriever_for(l2: bool, metric: str) -> HybridRetriever:
+        key = (l2, metric)                       # structural key
         if key not in cache:
-            cfg = HybridConfig(k=10, metric=metric, svd_dim=svd_dim,
+            cfg = HybridConfig(k=10, metric=metric,
                                l2_normalize=l2, hybrid_lambda=0.5,
                                embedder="bge")        # D2: semantic dense side; k & λ don't matter here
             cache[key] = HybridRetriever(cfg).fit(corpus)                 # one fit per unique key
@@ -71,11 +75,10 @@ def make_objective(corpus: pd.DataFrame, gold_train: pd.DataFrame,
         # Each suggest_* call tells Optuna "this is a tunable axis with this distribution"
         k = trial.suggest_int("k", 3, 30)                                  # int axis [3, 30]
         metric = trial.suggest_categorical("metric", ["cosine", "dot", "euclidean"])
-        svd_dim = trial.suggest_categorical("svd_dim", [0, 64, 128, 256])
         l2 = trial.suggest_categorical("l2_normalize", [True, False])
         lam = trial.suggest_float("hybrid_lambda", 0.0, 1.0)               # continuous axis [0, 1]
 
-        retriever = _retriever_for(svd_dim, l2, metric)                    # cached fit
+        retriever = _retriever_for(l2, metric)                            # cached fit
         # k is applied at search time via top_k_search — no refit needed.
         m = evaluate(retriever, gold_train, k=5,
                      top_k_search=max(k, 5), hybrid_lambda=lam)
@@ -115,7 +118,7 @@ def main():
     # Re-evaluate the winning config on the held-out val split, then on the full gold set,
     # to detect optimistic bias in the training-split score.
     p = best.params
-    cfg = HybridConfig(k=p["k"], metric=p["metric"], svd_dim=p["svd_dim"],
+    cfg = HybridConfig(k=p["k"], metric=p["metric"],
                        l2_normalize=p["l2_normalize"],
                        hybrid_lambda=p["hybrid_lambda"],
                        embedder="bge")           # D2: semantic dense side (bge-small-en)
@@ -131,10 +134,9 @@ def main():
     study_summary = {
         "n_trials": N_TRIALS,
         "seed": SEED,
-        "search_space": {                                                  # exactly mirrors the brief's spec
+        "search_space": {                                                  # axes actually searched (bge dense side)
             "k": [3, 30],
             "metric": ["cosine", "dot", "euclidean"],
-            "svd_dim": [0, 64, 128, 256],
             "l2_normalize": [True, False],
             "hybrid_lambda": [0.0, 1.0],
         },
