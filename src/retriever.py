@@ -60,7 +60,8 @@ class HybridConfig:
     svd_dim: int = 128                           # 0 = no SVD; search space {0, 64, 128, 256}
     l2_normalize: bool = True                    # whether to L2-normalize dense vectors before scoring
     hybrid_lambda: float = 0.5                   # 1.0 = BM25-only, 0.0 = dense-only — search space [0,1]
-
+    embedder: str = "tfidf"                      # "tfidf" (old LSA path) or "bge" (semantic embeddings)
+    embed_model: str = "BAAI/bge-small-en-v1.5"  # used only when embedder == "bge"
 
 class HybridRetriever:
     """BM25 + (TF-IDF[+SVD]) hybrid retriever, fit once over a corpus."""
@@ -72,6 +73,8 @@ class HybridRetriever:
         self.svd: TruncatedSVD | None = None     # populated by fit() (or stays None if svd_dim==0)
         self.dense_matrix: np.ndarray | None = None # (N_docs, dim) dense matrix
         self.paper_ids: List[str] = []           # row-index ↔ paper_id
+        self.embed_model = None                  # SentenceTransformer, populated by fit() on the bge path
+
 
     # ---- fitting ----
     def fit(self, df: pd.DataFrame) -> "HybridRetriever":
@@ -81,21 +84,35 @@ class HybridRetriever:
         # BM25 — index over the tokenised corpus
         self.bm25 = BM25Okapi([_tokenize(t) for t in texts])
 
-        # TF-IDF — unigrams + bigrams, drop very common terms (>95% of docs)
-        self.tfidf = TfidfVectorizer(
-            lowercase=True, ngram_range=(1, 2), min_df=1, max_df=0.95
-        )
-        X = self.tfidf.fit_transform(texts)      # sparse matrix (N_docs, V) where V = vocab size
-
-        # Optional SVD (LSA) — projects the sparse TF-IDF matrix into a dense low-dim space
-        if self.cfg.svd_dim and self.cfg.svd_dim > 0:
-            # cap n_components so SVD doesn't fail on small corpora
-            n_components = min(self.cfg.svd_dim, X.shape[1] - 1, X.shape[0] - 1)
-            self.svd = TruncatedSVD(n_components=n_components, random_state=42)
-            dense = self.svd.fit_transform(X)    # (N_docs, n_components)
+        if self.cfg.embedder == "bge":
+            # Dense side = real semantic embeddings (bge-small-en-v1.5, 384-dim).
+            # This is the D2 upgrade: a genuine neural encoder replaces TF-IDF/SVD,
+            # so the dense signal bridges vocabulary gaps instead of staying bag-of-words.
+            from sentence_transformers import SentenceTransformer
+            self.embed_model = SentenceTransformer(self.cfg.embed_model)
+            self.tfidf = None                    # unused on the bge path
+            self.svd = None
+            dense = self.embed_model.encode(
+                texts, batch_size=32, show_progress_bar=False,
+                convert_to_numpy=True,
+            )                                    # (N_docs, 384)
         else:
-            self.svd = None                      # explicitly None — used as a flag at search time
-            dense = X.toarray()                  # if no SVD, materialise the TF-IDF matrix as dense
+            # TF-IDF — unigrams + bigrams, drop very common terms (>95% of docs)
+            self.tfidf = TfidfVectorizer(
+                lowercase=True, ngram_range=(1, 2), min_df=1, max_df=0.95
+            )
+            X = self.tfidf.fit_transform(texts)      # sparse matrix (N_docs, V) where V = vocab size
+
+            # Optional SVD (LSA) — projects the sparse TF-IDF matrix into a dense low-dim space
+            if self.cfg.svd_dim and self.cfg.svd_dim > 0:
+                # cap n_components so SVD doesn't fail on small corpora
+                n_components = min(self.cfg.svd_dim, X.shape[1] - 1, X.shape[0] - 1)
+                self.svd = TruncatedSVD(n_components=n_components, random_state=42)
+                dense = self.svd.fit_transform(X)    # (N_docs, n_components)
+            else:
+                self.svd = None                      # explicitly None — used as a flag at search time
+                dense = X.toarray()                  # if no SVD, materialise the TF-IDF matrix as dense
+
 
         # Optional L2 norm — makes cosine equivalent to dot product
         if self.cfg.l2_normalize:
@@ -108,12 +125,17 @@ class HybridRetriever:
     # ---- scoring ----
     def _dense_scores(self, query_text: str) -> np.ndarray:
         """Return per-document dense scores for one query (higher = more relevant)."""
-        assert self.tfidf is not None and self.dense_matrix is not None
-        q = self.tfidf.transform([query_text])    # (1, V) sparse vector for the query
-        if self.svd is not None:                  # if we used SVD at fit time, project the query the same way
-            qd = self.svd.transform(q)
+        assert self.dense_matrix is not None
+        if self.cfg.embedder == "bge":
+            # Same model as fit(); the query instruction helps bge on short queries.
+            q_text = "Represent this sentence for searching relevant passages: " + query_text
+            qd = self.embed_model.encode([q_text], convert_to_numpy=True)   # (1, 384)
         else:
-            qd = q.toarray()                      # otherwise materialise the sparse query as dense
+            q = self.tfidf.transform([query_text])    # (1, V) sparse vector for the query
+            if self.svd is not None:                  # if we used SVD at fit time, project the query the same way
+                qd = self.svd.transform(q)
+            else:
+                qd = q.toarray()                      # otherwise materialise the sparse query as dense
         if self.cfg.l2_normalize:                 # apply the same L2 norm we used at fit time
             qd = normalize(qd, norm="l2", axis=1)
         qd = qd.astype(np.float32, copy=False)    # match dtype of the doc matrix to enable fast BLAS
