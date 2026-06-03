@@ -1,0 +1,64 @@
+# D2 run card — the winning/active configuration + corpus + headline results.
+# Mirrors D1's run_card.yaml style so the two deliverables are traceable.
+
+deliverable: D2 — Retrieval Stack & Graph Build
+course: CSAI415
+
+corpus:
+  source: arXiv (open-access full-text PDFs)
+  selection: top 10 relevance-ranked papers per topic from the D1 corpus
+  n_papers: 60
+  topics: [transformers, rag, online_learning, vision, rl_agents, automl]
+  manifest: data/papers.csv            # paper_id,title,authors,venue,year,pdf_url,pdf_path,topics,doi
+  max_pages_per_pdf: 20                 # cap leading pages (references/appendices add low-value chunks)
+  n_chunks: 4155
+
+ingestion:
+  parser: pypdf (per-page text + char offsets -> page map)
+  chunking: sliding window, 900 chars, 150 overlap, min 120; sentence-boundary snap
+  provenance_per_chunk: [paper_id, chunk_index, page_start, page_end, char_start, char_end, n_tokens, sha256, run_id]
+
+embedder:
+  name: BAAI/bge-small-en-v1.5
+  backend: fastembed (ONNX runtime, CPU, no torch)
+  dim: 384
+  query_instruction: applied via fastembed.query_embed (bge asymmetric recipe)
+
+stores:
+  mongodb:
+    collections: [documents, chunks, runs, cache]
+    cache_ttl_seconds: 3600            # TTL index on cache.created_at
+    fallback: mongomock (in-process)
+  qdrant:
+    collection: chunks
+    distance: cosine
+    payload_index: [paper_id, topic]
+    modes: [server (docker), on-disk (path), in-memory]
+  neo4j:
+    schema:
+      - (:Author)-[:WROTE]->(:Paper)
+      - (:Paper)-[:ABOUT]->(:Topic)
+      - (:Paper)-[:PUBLISHED_IN]->(:Venue)
+    fallback: networkx (in-process, same query API)
+    graph_stats: {nodes: 365, edges: 425, papers: 60, topics: 6, authors: 298, venues: 1}
+
+retrieval:
+  type: hybrid (BM25 over chunks + dense ANN), min-max fused
+  fusion: lambda*bm25 + (1-lambda)*dense over the union of candidate pools
+  hybrid_lambda: 0.5                    # frozen from the D1 Optuna winner; D1 online learner adapts it
+  candidate_pool: 100
+
+results:                                # 59 gold queries (relevance restricted to in-corpus papers), k=5
+  recall_at_5: {bm25_only: 0.624, dense_only: 0.615, hybrid: 0.611}
+  ndcg_at_5:   {bm25_only: 0.860, dense_only: 0.829, hybrid: 0.841}
+  p95_latency_ms: {bm25_only: 28.0, dense_only: 29.2, hybrid: 28.0}
+  by_type_hybrid:
+    title:    {recall_at_5: 1.000, ndcg_at_5: 1.000, n: 18}
+    targeted: {recall_at_5: 0.526, ndcg_at_5: 0.761, n: 17}
+    broad:    {recall_at_5: 0.379, ndcg_at_5: 0.779, n: 24}
+
+targets:
+  recall_at_5_ge_0_60: true            # hybrid 0.611
+  p95_latency_le_2s_cpu: true          # ~28 ms
+
+seed: 42
