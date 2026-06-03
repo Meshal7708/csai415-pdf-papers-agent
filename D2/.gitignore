@@ -1,0 +1,14 @@
+# runtime / large / regenerable artefacts
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+
+# downloaded PDFs (open-access; regenerate with scripts/download_pdfs.py)
+data/pdfs/
+
+# ephemeral local stores (sandbox mode); real stores live in docker volumes
+data/cache/
+data/qdrant_db/
+
+# keep: data/papers.csv, results/*, src/, api/, scripts/, tests/, docker-compose.yml
