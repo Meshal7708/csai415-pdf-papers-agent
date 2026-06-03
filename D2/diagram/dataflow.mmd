@@ -1,0 +1,35 @@
+%% D2 dataflow: ingest -> stores -> retrieval -> graph
+%% Render: https://mermaid.live  or  mmdc -i dataflow.mmd -o dataflow.svg
+flowchart LR
+    subgraph Ingest
+        A[arXiv PDFs] --> B[parse_pdf<br/>pypdf + page map]
+        B --> C[chunk_pages<br/>900c / 150 overlap<br/>+ page range + offsets]
+        C --> D[bge-small-en-v1.5<br/>fastembed ONNX 384-d]
+    end
+
+    subgraph Stores
+        M[(MongoDB<br/>documents · chunks<br/>provenance · runs · TTL cache)]
+        Q[(Qdrant<br/>chunk vectors<br/>cosine + payload idx)]
+        N[(Neo4j<br/>Author-WROTE-Paper<br/>Paper-ABOUT-Topic<br/>Paper-PUBLISHED_IN-Venue)]
+    end
+
+    C -->|metadata + text| M
+    C -->|paper/author/topic/venue| N
+    D -->|vectors + payload| Q
+
+    subgraph Retrieval [Hybrid /search]
+        QRY[query] --> BM[BM25 over chunks]
+        QRY --> DEN[dense ANN]
+        BM --> FU[min-max fuse<br/>λ·bm25 + 1-λ·dense]
+        DEN --> FU
+        FU --> R[top-k chunks<br/>+ citation + page range]
+    end
+
+    M -. chunk texts .-> BM
+    Q -. ANN pool .-> DEN
+    N -. 2-hop expansion<br/>GraphRAG D3 .-> FU
+    M -. titles + pages .-> R
+
+    style Ingest fill:#eef
+    style Stores fill:#efe
+    style Retrieval fill:#fee
