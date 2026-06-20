@@ -1,0 +1,25 @@
+# D3 — GraphRAG Executor, Evaluation & Safety
+# Core retrieval + graph (shared with D2)
+numpy
+pandas
+pyarrow
+rank_bm25
+fastembed              # BAAI/bge-small-en-v1.5 via ONNX (CPU, no torch)
+qdrant-client          # vector store (server / on-disk / :memory:)
+mongomock              # in-process Mongo fallback
+pymongo                # real MongoDB (service mode)
+neo4j                  # real Neo4j (service mode); NetworkX fallback otherwise
+networkx               # in-process graph + PageRank / shortest paths
+pypdf                  # CITES extraction from PDFs
+
+# API + notebook + tests
+fastapi
+uvicorn
+nbformat
+nbclient
+ipykernel
+pytest
+
+# Optional (auto-detected if present)
+# sentence-transformers   # cross-encoder reranker (else semantic-MMR)
+# openai                  # LLM answerer (else extractive)  — set OPENAI_API_KEY
