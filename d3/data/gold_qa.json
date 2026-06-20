@@ -1,0 +1,102 @@
+{
+  "description": "D3 gold Q/A set. 12 questions (2 per topic) grounded in real corpus papers. `relevant` lists the paper_ids whose content answers the question (used for context-recall@k). `reference_answer` is a short ground-truth used for an answer-correctness signal; `query_type` is factoid (one target paper) or broad (a topic-level question with several relevant papers).",
+  "k": 5,
+  "items": [
+    {
+      "id": "tf1",
+      "question": "What problem does the Explicit Sparse Transformer address in the attention mechanism?",
+      "reference_answer": "It concentrates attention on the most relevant tokens by explicitly selecting the top-k positions, reducing interference from irrelevant context.",
+      "relevant": ["1912.11637"],
+      "topic": "transformers",
+      "query_type": "factoid"
+    },
+    {
+      "id": "tf2",
+      "question": "How does the Tree Transformer integrate syntactic tree structure into self-attention?",
+      "reference_answer": "It adds a constituent-attention mechanism that induces tree structures, guiding self-attention to respect hierarchical, syntactic spans.",
+      "relevant": ["1909.06639"],
+      "topic": "transformers",
+      "query_type": "factoid"
+    },
+    {
+      "id": "rag1",
+      "question": "What is W-RAG and in what sense is its dense retriever weakly supervised?",
+      "reference_answer": "W-RAG trains a dense retriever for open-domain question answering using weak supervision derived from a large language model's answer signals, avoiding human relevance labels.",
+      "relevant": ["2408.08444"],
+      "topic": "rag",
+      "query_type": "factoid"
+    },
+    {
+      "id": "rag2",
+      "question": "How does CG-RAG use a citation graph for research question answering?",
+      "reference_answer": "CG-RAG performs retrieval over a citation graph, combining structural citation links with dense retrieval to answer research questions.",
+      "relevant": ["2501.15067"],
+      "topic": "rag",
+      "query_type": "factoid"
+    },
+    {
+      "id": "ol1",
+      "question": "How is concept drift detected in streaming data?",
+      "reference_answer": "Drift detectors monitor changes in the data distribution or model error over time, often using adaptive windows, and trigger model adaptation when drift is detected.",
+      "relevant": ["2311.06396", "2305.11942", "2407.05375"],
+      "topic": "online_learning",
+      "query_type": "broad"
+    },
+    {
+      "id": "ol2",
+      "question": "What does OPTWIN propose for identifying concept drift?",
+      "reference_answer": "OPTWIN identifies drift using optimal sub-windows over the stream, improving the precision of where drift is detected.",
+      "relevant": ["2305.11942"],
+      "topic": "online_learning",
+      "query_type": "factoid"
+    },
+    {
+      "id": "vi1",
+      "question": "How do vision transformers reduce computation through adaptive token sampling?",
+      "reference_answer": "Adaptive Token Sampling scores and drops uninformative tokens per image, cutting computation while largely preserving accuracy.",
+      "relevant": ["2111.15667"],
+      "topic": "vision",
+      "query_type": "factoid"
+    },
+    {
+      "id": "vi2",
+      "question": "How are vision transformers applied to building extraction from remote-sensing imagery?",
+      "reference_answer": "A vision-transformer segmentation model is used to extract building footprints from aerial or satellite imagery.",
+      "relevant": ["2111.15637"],
+      "topic": "vision",
+      "query_type": "factoid"
+    },
+    {
+      "id": "rl1",
+      "question": "What is the idea behind Two-Memory Reinforcement Learning?",
+      "reference_answer": "It combines two complementary memory systems so the agent can leverage both fast episodic recall and slower parametric learning to improve decision-making.",
+      "relevant": ["2304.10098"],
+      "topic": "rl_agents",
+      "query_type": "factoid"
+    },
+    {
+      "id": "rl2",
+      "question": "How is QMIX made more robust against state-adversarial attacks?",
+      "reference_answer": "The method defends QMIX's value factorization against adversarial perturbations of observed states, improving robustness in multi-agent settings.",
+      "relevant": ["2307.00907"],
+      "topic": "rl_agents",
+      "query_type": "factoid"
+    },
+    {
+      "id": "am1",
+      "question": "What is the goal of neural architecture search in AutoML?",
+      "reference_answer": "Neural architecture search automates model design by searching over architectures to optimize objectives such as accuracy, latency, or size.",
+      "relevant": ["2307.09099", "2105.01015", "1908.00709"],
+      "topic": "automl",
+      "query_type": "broad"
+    },
+    {
+      "id": "am2",
+      "question": "What does the VEGA AutoML pipeline provide?",
+      "reference_answer": "VEGA is an end-to-end, configurable AutoML pipeline that covers stages such as architecture search, hyperparameter tuning, and data augmentation.",
+      "relevant": ["2011.01507"],
+      "topic": "automl",
+      "query_type": "factoid"
+    }
+  ]
+}
