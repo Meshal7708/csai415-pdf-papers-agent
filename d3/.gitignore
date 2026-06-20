@@ -1,0 +1,27 @@
+# environments / caches
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+pytest-cache-files-*/
+.ipynb_checkpoints/
+.fastembed_cache/
+
+# OS / editor junk
+.DS_Store
+*.tmp
+
+# large / regenerable artefacts
+data/qdrant_db/            # on-disk Qdrant (service mode); rebuilt from npz
+data/pdfs/                 # source PDFs (regenerate: ../D2/scripts/download_pdfs.py)
+
+# Keep (committed so the repo reproduces with no re-embedding / no Docker):
+#   data/embeddings.npz  data/cites.json  data/gold_qa.json
+#   src/  scripts/  api/  tests/  results/*  diagram/*  run_card.yaml  README.md  D3.ipynb
+
+# node (local docx install for build_report.js)
+node_modules/
+
+# LibreOffice lock/temp
+.~lock.*#
