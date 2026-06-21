@@ -1,0 +1,32 @@
+{
+  "config_fixed": {
+    "k": 10,
+    "metric": "cosine",
+    "svd_dim": 128,
+    "l2_normalize": true,
+    "hybrid_lambda": 0.5
+  },
+  "baselines": {
+    "bm25_only": {
+      "recall@5": 0.5735996813170726,
+      "ndcg@5": 0.8733618615488956,
+      "p95_latency_ms": 0.6466187303885816,
+      "mean_latency_ms": 0.5863018465252259,
+      "n_queries": 78
+    },
+    "dense_only": {
+      "recall@5": 0.5777388754562668,
+      "ndcg@5": 0.8971836224292937,
+      "p95_latency_ms": 0.6325750262476504,
+      "mean_latency_ms": 0.5716480380401779,
+      "n_queries": 78
+    },
+    "naive_hybrid_0.5": {
+      "recall@5": 0.579863417580809,
+      "ndcg@5": 0.894658209224117,
+      "p95_latency_ms": 0.6781186792068183,
+      "mean_latency_ms": 0.5955186744148915,
+      "n_queries": 78
+    }
+  }
+}
