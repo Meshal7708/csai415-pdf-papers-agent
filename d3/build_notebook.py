@@ -124,7 +124,7 @@ def build() -> nbf.NotebookNode:
         "At the full budget the small, topically-clean corpus saturates and the three "
         "modes converge on answer quality (graph adds latency). Graph expansion earns "
         "its keep where it is designed to — **recovering context-recall when the "
-        "first-stage budget is tight** (top-5: 0.944 → 1.000)."))
+        "first-stage budget is tight** (top-5 hybrid: 0.972 → 1.000)."))
 
     cells.append(md("## 5. Safety — retrieval poisoning / prompt injection (before vs after)\n\n"
                     "`scripts/run_safety.py` injects a poisoned passage (clone of the top "
