@@ -19,15 +19,17 @@ services are configured — the same dual-path design as D2.
 ## What's here
 
 ```
-D3/
+d3/
 ├── D3.ipynb                 ← collective notebook, executed end-to-end (the D2 fix)
 ├── build_notebook.py        ← regenerates + executes D3.ipynb (nbformat + nbclient)
-├── build_report.js          ← regenerates D3_Report.docx from results/ (numbers stay in sync)
-├── D3_Report.docx           ← the report
+├── D3_Report Final.docx     ← the report
 ├── run_card.yaml            ← active config + corpus + headline results
 ├── requirements.txt
+├── docker-compose.yml       ← optional Mongo + Qdrant + Neo4j (service mode)
+├── .env.example             ← env vars (blank = offline in-process fallbacks)
 ├── data/
 │   ├── gold_qa.json         ← 12-question gold Q/A set (2 per topic)
+│   ├── cache/*.jsonl        ← committed chunk + doc cache (offline rehydration)
 │   ├── embeddings.npz       ← bge chunk vectors (committed → no re-embedding needed)
 │   └── cites.json           ← real CITES edges extracted from the PDFs
 ├── src/
@@ -44,6 +46,7 @@ D3/
 │   └── (config, embedder, ingest, hybrid_search, stores/*  — reused from D2)
 ├── api/main.py              ← FastAPI: /ask /search /graph/subgraph /evaluate /stats /healthz
 ├── scripts/
+│   ├── build_cache.py       ← download PDFs + ingest -> data/cache (one command)
 │   ├── build_embeddings.py  ← build the bge embedding cache (resumable)
 │   ├── extract_cites.py     ← extract real CITES edges from the PDFs
 │   ├── seed_graph.py        ← load the enriched graph (Neo4j or NetworkX)
@@ -59,18 +62,21 @@ D3/
 ### No Docker (sandbox / CI path — what produced the committed numbers)
 
 ```bash
-cd D3
+cd d3
 pip install -r requirements.txt
 export FASTEMBED_CACHE_PATH=$PWD/.fastembed_cache       # bge model cache
 
-# embeddings.npz + cites.json are committed; rebuild them only if needed:
+# The chunk cache (data/cache/*.jsonl), embeddings.npz and cites.json are all
+# committed, so the repo runs from a clean clone with no services. Rebuild them
+# only if you want to regenerate from the PDFs:
+# python scripts/build_cache.py        # downloads PDFs + ingests -> data/cache
 # python scripts/build_embeddings.py   # re-run until it prints ALL_DONE (resumable)
 # python scripts/extract_cites.py
 
 PYTHONPATH=src python scripts/run_eval.py      # -> results/eval.json, ablation.md, examples
 PYTHONPATH=src python scripts/run_safety.py    # -> results/safety_before_after.md
 PYTHONPATH=src python build_notebook.py        # executes D3.ipynb in place
-PYTHONPATH=src pytest -q                        # 5 smoke tests
+PYTHONPATH=src pytest -q                        # 6 smoke tests
 
 uvicorn api.main:app --reload                   # http://127.0.0.1:8000/docs
 # e.g.  curl 'http://127.0.0.1:8000/ask?q=how+is+concept+drift+detected&mode=graph_hybrid'
@@ -79,8 +85,8 @@ uvicorn api.main:app --reload                   # http://127.0.0.1:8000/docs
 ### With Docker (service path)
 
 ```bash
-cd ../D2 && docker compose up -d                # Mongo + Qdrant + Neo4j
-cd ../D3 && set -a && source ../D2/.env && set +a
+cd d3 && docker compose up -d                   # Mongo + Qdrant + Neo4j
+cp .env.example .env && set -a && source .env && set +a
 PYTHONPATH=src python scripts/seed_graph.py     # loads CITES + SIMILAR_TO into Neo4j
 uvicorn api.main:app --reload
 ```
@@ -94,17 +100,17 @@ GraphRAG answers on the 12-question gold set (RAGAS-equivalent, bge-scored, offl
 
 | Mode | Faithfulness | Answer-rel. | Answer-corr. | Recall@5 | p95 ms |
 |---|---:|---:|---:|---:|---:|
-| Vector-only | 1.000 | 0.891 | 0.825 | 0.944 | 22.2 |
-| Hybrid | 1.000 | 0.894 | 0.823 | 0.917 | 27.7 |
-| **Graph-guided** | 1.000 | 0.893 | 0.822 | 0.917 | 78.7 |
+| Vector-only | 1.000 | 0.886 | 0.821 | 1.000 | 16.6 |
+| Hybrid | 1.000 | 0.889 | 0.829 | 0.972 | 22.7 |
+| **Graph-guided** | 1.000 | 0.889 | 0.829 | 0.972 | 74.3 |
 
 Graph expansion's value shows under a constrained first-stage budget (the
 imperfect-recall regime GraphRAG targets):
 
 | First-stage budget | Vector-only | Hybrid | Graph-expanded |
 |---|---:|---:|---:|
-| top-5  | 0.944 | 0.944 | **1.000** |
-| top-8  | 0.972 | 0.944 | **1.000** |
+| top-5  | 1.000 | 0.972 | **1.000** |
+| top-8  | 1.000 | 0.972 | **1.000** |
 | top-20 | 1.000 | 1.000 | **1.000** |
 
 **Safety.** A poisoned passage (ranked #1, carrying an injected instruction) is
@@ -128,9 +134,10 @@ semantic edges and 3 real `CITES` edges, enabling the non-trivial Cypher.
 - **Two D2 fixes.** A single executed **collective notebook**, and a much richer
   graph with **non-trivial Cypher** (weighted multi-signal subgraph, two-hop
   semantic expansion, shortest author paths, co-citation, PageRank authority).
-- **Reproducibility.** One seed (42); `embeddings.npz` committed so results
-  rebuild with no re-embedding; the report reads `results/*.json` so its numbers
-  cannot drift from the artefacts.
+- **Reproducibility.** One seed (42); the chunk cache (`data/cache/*.jsonl`),
+  `embeddings.npz` and `cites.json` are all committed, so a clean clone runs
+  offline with no services and no re-embedding. `scripts/build_cache.py` +
+  `scripts/build_embeddings.py` regenerate them deterministically from the PDFs.
 
 
 A single seed (`42`) is shared across modules so each of us reproduces the
