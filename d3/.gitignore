@@ -14,13 +14,16 @@ pytest-cache-files-*/
 
 # large / regenerable artefacts
 data/qdrant_db/            # on-disk Qdrant (service mode); rebuilt from npz
-data/pdfs/                 # source PDFs (regenerate: ../D2/scripts/download_pdfs.py)
+data/pdfs/                 # source PDFs (regenerate: scripts/build_cache.py)
+data/_embed_partial.npz   # resumable-embedding scratch file
+scripts/_regen_embed.py   # local scratch helper (use scripts/build_embeddings.py)
 
-# Keep (committed so the repo reproduces with no re-embedding / no Docker):
-#   data/embeddings.npz  data/cites.json  data/gold_qa.json
+# Keep (committed so the repo reproduces offline with no re-embedding / no Docker):
+#   data/cache/*.jsonl  data/embeddings.npz  data/cites.json  data/gold_qa.json
 #   src/  scripts/  api/  tests/  results/*  diagram/*  run_card.yaml  README.md  D3.ipynb
+#   docker-compose.yml  .env.example
 
-# node (local docx install for build_report.js)
+# node
 node_modules/
 
 # LibreOffice lock/temp
