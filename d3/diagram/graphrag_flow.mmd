@@ -1,0 +1,24 @@
+flowchart LR
+    Q[Question] --> FS[First-pass hybrid retrieval<br/>BM25 + dense]
+    FS --> SEEDS[Seed papers]
+
+    SEEDS --> SUB[1. Subgraph by Cypher<br/>weighted_subgraph<br/>similar + topic + author]
+    SUB --> EXP[2. Expand to chunks<br/>pinned dense over subgraph papers]
+    FS --> EXP
+    EXP --> SAFE{Provenance filter<br/>source pinning + injection scrub}
+    SAFE --> BLEND[3. Blend + rerank<br/>semantic-MMR + graph prior]
+    BLEND --> ANS[4. Answer<br/>grounded, with citations and page ranges]
+    ANS --> OUT[Cited answer]
+
+    subgraph STORES[Stores]
+        MONGO[(MongoDB<br/>chunks + provenance)]
+        QDRANT[(Qdrant<br/>bge vectors)]
+        NEO[(Neo4j<br/>CITES + SIMILAR_TO)]
+    end
+    QDRANT -.-> FS
+    QDRANT -.-> EXP
+    NEO -.-> SUB
+    MONGO -.-> ANS
+
+    EVAL[Evaluation<br/>faithfulness · answer-rel · recall · p95]
+    ANS -.-> EVAL

@@ -1,0 +1,91 @@
+# D3 run card — active configuration + corpus + headline results.
+# Mirrors D1/D2 run-card style so the three deliverables are traceable.
+
+deliverable: D3 — GraphRAG Executor, Evaluation & Safety
+course: CSAI415
+seed: 42
+
+corpus:                                  # inherited from D2 (rehydrated from cache)
+  source: arXiv open-access PDFs
+  n_papers: 60
+  n_chunks: 4155
+  topics: [transformers, rag, online_learning, vision, rl_agents, automl]
+  embedder: BAAI/bge-small-en-v1.5       # fastembed/ONNX, 384-d, CPU
+  embeddings_cache: data/embeddings.npz  # chunk_id -> bge vector (float16)
+
+graph:                                   # enriched over D2 (the "simple Cypher" fix)
+  schema:
+    - (:Author)-[:WROTE]->(:Paper)
+    - (:Paper)-[:ABOUT]->(:Topic)
+    - (:Paper)-[:PUBLISHED_IN]->(:Venue)
+    - (:Paper)-[:CITES]->(:Paper)          # real references (PDF-extracted)
+    - (:Paper)-[:SIMILAR_TO {score}]->(:Paper)  # top-8 bge semantic neighbours
+  stats: {nodes: 365, edges: 908, papers: 60, authors: 298, topics: 6, venues: 1}
+  edge_rels: {SIMILAR_TO: 480, WROTE: 305, ABOUT: 60, PUBLISHED_IN: 60, CITES: 3}
+  vs_d2_edges: 425                         # D3 adds 483 edges (SIMILAR_TO + CITES)
+  cypher: src/cypher_queries_d3.py         # weighted_subgraph, semantic_neighbours,
+                                           # two_hop_similar, author_collab_path,
+                                           # co_citation, pagerank_authority (GDS)
+
+executor:                                  # src/graphrag.py — the 4 stages
+  stages: [subgraph_by_cypher, expand_to_chunks, hybrid_blend_rerank, answer_with_citations]
+  seeds: 6
+  subgraph_expand_k: 6
+  candidate_pool: 30
+  rerank: semantic-mmr                     # lambda=0.7; cross-encoder optional
+  graph_prior_beta: 0.15                   # graph-augmented fusion weight
+  answerer: extractive                     # grounded-by-construction; LLM optional (OPENAI_API_KEY)
+  default_hybrid_lambda: 0.5               # frozen from D1 Optuna winner
+
+evaluation:                                # src/evaluate.py — RAGAS-equivalent, offline
+  gold_qa: data/gold_qa.json               # 12 Q/A (2 per topic), factoid + broad
+  faithfulness_tau: 0.60
+  results_graph_hybrid:
+    faithfulness: 1.000
+    answer_relevance: 0.893
+    answer_correctness: 0.822
+    context_recall_at_5: 0.917
+    p95_latency_ms: 78.7
+    mean_latency_ms: 61.8
+
+ablation:                                  # vector-only vs hybrid vs graph-guided
+  answer_quality_top5:                     # latency is machine-dependent; quality metrics are deterministic
+    vector_only:  {faithfulness: 1.000, answer_relevance: 0.891, recall@5: 0.944, p95_ms: 22.2}
+    hybrid:       {faithfulness: 1.000, answer_relevance: 0.894, recall@5: 0.917, p95_ms: 27.7}
+    graph_hybrid: {faithfulness: 1.000, answer_relevance: 0.893, recall@5: 0.917, p95_ms: 78.7}
+  context_recall_vs_first_stage_budget:    # where graph expansion earns its keep
+    top5:  {vector: 0.944, hybrid: 0.944, graph_expanded: 1.000}
+    top8:  {vector: 0.972, hybrid: 0.944, graph_expanded: 1.000}
+    top20: {vector: 1.000, hybrid: 1.000, graph_expanded: 1.000}
+  finding: >
+    At full budget the small, clean corpus saturates and all modes converge on
+    answer quality (graph adds latency). Graph expansion recovers context-recall
+    when the first-stage budget is tight (0.944 -> 1.000 at top-5), the regime it
+    is designed for; the gain closes as the budget grows.
+
+safety:                                    # src/safety.py — before/after evidence
+  threat: retrieval poisoning + indirect prompt injection
+  mitigation: provenance_filter + source_pinning + injection_scrubbing
+  attack_before: succeeded                 # poison ranked #1, cited, payload in context
+  attack_after: blocked                    # 1 chunk dropped (untrusted_source)
+  evidence: results/safety_before_after.md
+
+api:                                       # src/../api/main.py — basic FastAPI
+  endpoints: [/ask, /search, /graph/subgraph, /evaluate, /stats, /healthz]
+
+backends_sandbox: {mongo: mongomock, qdrant: qdrant-memory, graph: networkx}
+backends_service: {mongo: mongodb, qdrant: qdrant-server, graph: neo4j}
+
+artifacts:
+  notebook: D3.ipynb
+  report: D3_Report.docx
+  ablation: results/ablation.md
+  eval_json: results/eval.json
+  examples: results/graphrag_examples.md
+  safety: results/safety_before_after.md
+  diagram: diagram/graphrag_flow.svg
+
+environment:
+  python: "3.10+"
+  key_deps: {fastembed: bge-small-en-v1.5, qdrant-client: ann, networkx: graph,
+             rank_bm25: lexical, fastapi: api, nbclient: notebook}
