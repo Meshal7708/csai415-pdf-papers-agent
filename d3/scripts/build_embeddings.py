@@ -23,7 +23,9 @@ from pathlib import Path
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]                 # .../D3
-CACHE = ROOT.parent / "D2" / "data" / "cache" / "chunks.jsonl"
+# Prefer D3's committed cache (data/cache); fall back to D2's if running side by side.
+_LOCAL = ROOT / "data" / "cache" / "chunks.jsonl"
+CACHE = _LOCAL if _LOCAL.exists() else ROOT.parent / "D2" / "data" / "cache" / "chunks.jsonl"
 OUT = ROOT / "data" / "embeddings.npz"
 OUT.parent.mkdir(parents=True, exist_ok=True)
 os.environ.setdefault("FASTEMBED_CACHE_PATH",
