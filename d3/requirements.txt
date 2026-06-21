@@ -10,6 +10,7 @@ mongomock              # in-process Mongo fallback
 pymongo                # real MongoDB (service mode)
 neo4j                  # real Neo4j (service mode); NetworkX fallback otherwise
 networkx               # in-process graph + PageRank / shortest paths
+scipy                  # required by networkx PageRank (sparse linear algebra)
 pypdf                  # CITES extraction from PDFs
 
 # API + notebook + tests
